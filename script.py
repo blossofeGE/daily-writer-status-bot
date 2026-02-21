@@ -2,11 +2,7 @@ import requests
 import os
 
 def check():
-    print(f"Пытаюсь отправить сообщение на ID: {chat_id[:4]}***") # Покажет начало ID в логах
-    # Проверка, не пустые ли переменные
-    if not token or not chat_id:
-        print("Ошибка: Токен или ID пустые!")
-        return
+
     # Тянем данные о Петере Яроше из Wikidata
     url = "https://www.wikidata.org/wiki/Special:EntityData/Q12044733.json"
     
@@ -14,6 +10,11 @@ def check():
     token = os.getenv('TG_TOKEN')
     chat_id = os.getenv('TG_CHAT_ID')
     
+    print(f"Пытаюсь отправить сообщение на ID: {chat_id[:4]}***") # Покажет начало ID в логах
+    # Проверка, не пустые ли переменные
+    if not token or not chat_id:
+        print("Ошибка: Токен или ID пустые!")
+        return
     try:
         response = requests.get(url).json()
         # Ищем блок утверждений (claims)
