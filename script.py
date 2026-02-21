@@ -5,7 +5,7 @@ def check():
     token = os.getenv('TG_TOKEN')
     chat_id = os.getenv('TG_CHAT_ID')
     
-    # ТЕСТ: Франц Кафка (Q460) - должен быть "Мертв"
+    # ТЕСТ: Франц Кафка (Q460) - должен выдать тревогу
     # РАБОЧИЙ: Петер Ярош (Q12044733) - должен быть "Жив"
     target_id = "Q460" 
     
@@ -14,20 +14,14 @@ def check():
 
     try:
         response = requests.get(wiki_url, headers=headers)
-        data = response.json()
+        text_data = response.text # Берем сырой текст ответа
         
-        # Заходим внутрь JSON структуры Wikidata
-        entity = data.get('entities', {}).get(target_id, {})
-        claims = entity.get('claims', {})
-        
-        # P570 — это свойство "date of death"
-        death_date_info = claims.get('P570')
-        
-        if death_date_info:
-            print(f"DEBUG: Найдена дата смерти для {target_id}")
-            msg = f"❗ Внимание! У объекта {target_id} (Кафка/Ярош) обнаружена дата смерти в Wikidata."
+        # Если в тексте вообще встречается "P570" (код даты смерти в Wikidata)
+        if '"P570"' in text_data:
+            print(f"DEBUG: Метка смерти P570 найдена в тексте для {target_id}")
+            msg = f"❗ Внимание! У объекта {target_id} обнаружены критические изменения (дата смерти) в Wikidata."
         else:
-            print(f"DEBUG: Дата смерти для {target_id} НЕ найдена")
+            print(f"DEBUG: Метка смерти P570 не обнаружена для {target_id}")
             msg = f"🇸🇰 Статус объекта {target_id}: Жив. Все в порядке."
 
         # Отправка в Telegram
