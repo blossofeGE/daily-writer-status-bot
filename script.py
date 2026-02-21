@@ -67,7 +67,7 @@ def check():
                 clean_date = raw_date.lstrip('+').split('T')[0] if raw_date else "Неизвестная дата"
                 results.append(f" {t_name}: Мертв ({clean_date})")
             else:
-                results.append(f"{t_name}: Жив")
+                results.append(f"{t_name} жив")
                 
         except requests.exceptions.HTTPError as e:
             results.append(f"🔌 {t_name}: Ошибка сервера ({e.response.status_code})")
