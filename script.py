@@ -65,9 +65,9 @@ def check():
             if 'P570' in claims:
                 raw_date = claims['P570'][0].get('mainsnak', {}).get('datavalue', {}).get('value', {}).get('time', '')
                 clean_date = raw_date.lstrip('+').split('T')[0] if raw_date else "Неизвестная дата"
-                results.append(f"❌ {t_name}: Мертв ({clean_date})")
+                results.append(f" {t_name}: Мертв ({clean_date})")
             else:
-                results.append(f"✅ {t_name}: Жив (Проверено на 100%)")
+                results.append(f"{t_name}: Жив")
                 
         except requests.exceptions.HTTPError as e:
             results.append(f"🔌 {t_name}: Ошибка сервера ({e.response.status_code})")
