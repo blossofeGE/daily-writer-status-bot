@@ -82,7 +82,7 @@ def check():
             results.append(f"🔥 {t_name}: Неизвестная ошибка ({type(e).__name__})")
 
     # Формируем и отправляем
-    full_msg = results
+    full_msg = "🛡 **Бронебойный отчет:**\n\n" + "\n".join(results)
     
     tg_url = f"https://api.telegram.org/bot{token}/sendMessage"
     requests.post(tg_url, json={"chat_id": chat_id, "text": full_msg, "parse_mode": "Markdown"})
