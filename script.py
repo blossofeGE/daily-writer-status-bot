@@ -5,9 +5,8 @@ def check():
     token = os.getenv('TG_TOKEN')
     chat_id = os.getenv('TG_CHAT_ID')
     
-    # ТЕСТ: Владимир Высоцкий (Q512)
     # РАБОЧИЙ: Петер Ярош (Q12044733)
-    target_id = "Q9682" 
+    target_id = "Q12044733" 
 
     url = f"https://www.wikidata.org/wiki/Special:EntityData/{target_id}.json"
     headers = {'User-Agent': 'Mozilla/5.0'}
@@ -34,7 +33,7 @@ def check():
             msg = f"❗ Внимание! У объекта {name} ({target_id}) обнаружена дата смерти: {clean_date}"
         else:
             print(f"ℹ️ DEBUG: {name} найден. Дата смерти отсутствует.")
-            msg = f"🇸🇰 Статус объекта {name}: Жив. Все в порядке."
+            msg = f"🇸🇰 {name}: Жив. Все в порядке."
 
         # Отправка в Telegram
         requests.post(f"https://api.telegram.org/bot{token}/sendMessage", 
