@@ -5,23 +5,37 @@ def check():
     token = os.getenv('TG_TOKEN')
     chat_id = os.getenv('TG_CHAT_ID')
     
-    # ТЕСТ: Франц Кафка (Q460) - должен выдать тревогу
-    # РАБОЧИЙ: Петер Ярош (Q12044733) - должен быть "Жив"
+    # ТЕСТ: Франц Кафка (Q460) - ДОЛЖЕН БЫТЬ "МЕРТВ"
+    # РАБОЧИЙ: Петер Ярош (Q12044733) - ДОЛЖЕН БЫТЬ "ЖИВ"
     target_id = "Q460" 
+
+    # Используем правильный API эндпоинт Wikidata
+    api_url = "https://www.wikidata.org/w/api.php"
+    params = {
+        "action": "wbgetentities",
+        "ids": target_id,
+        "format": "json",
+        "props": "claims"
+    }
     
-    wiki_url = f"https://www.wikidata.org/wiki/Special:EntityData/{target_id}.json"
     headers = {'User-Agent': 'JarosStatusBot/1.0'}
 
     try:
-        response = requests.get(wiki_url, headers=headers)
-        text_data = response.text # Берем сырой текст ответа
+        response = requests.get(api_url, params=params, headers=headers)
+        data = response.json()
         
-        # Если в тексте вообще встречается "P570" (код даты смерти в Wikidata)
-        if '"P570"' in text_data:
-            print(f"DEBUG: Метка смерти P570 найдена в тексте для {target_id}")
-            msg = f"❗ Внимание! У объекта {target_id} обнаружены критические изменения (дата смерти) в Wikidata."
+        # Вытаскиваем "заявления" (claims) для нашего ID
+        entity = data.get('entities', {}).get(target_id, {})
+        claims = entity.get('claims', {})
+        
+        # P570 — это "date of death"
+        has_death_date = "P570" in claims
+        
+        if has_death_date:
+            print(f"DEBUG: Метка смерти P570 найдена для {target_id}")
+            msg = f"❗ Внимание! У объекта {target_id} обнаружена дата смерти в Wikidata."
         else:
-            print(f"DEBUG: Метка смерти P570 не обнаружена для {target_id}")
+            print(f"DEBUG: Метка смерти P570 не найдена для {target_id}")
             msg = f"🇸🇰 Статус объекта {target_id}: Жив. Все в порядке."
 
         # Отправка в Telegram
