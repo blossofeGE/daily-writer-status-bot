@@ -7,9 +7,6 @@ def check():
     
     # Тот самый список (теперь с настоящим Кафкой!)
     targets = {
-        "Q905": "Франц Кафка",          # Настоящий Кафка (1924)
-        "Q512": "Владимир Высоцкий",    # Контроль: Смерть (1980)
-        "Q9682": "Елизавета II",        # Контроль: Смерть (2022)
         "Q12044733": "Петер Ярош"       # Цель: Мониторинг (Жив)
     }
 
@@ -82,7 +79,7 @@ def check():
             results.append(f"🔥 {t_name}: Неизвестная ошибка ({type(e).__name__})")
 
     # Формируем и отправляем
-    full_msg = "🛡 **Бронебойный отчет:**\n\n" + "\n".join(results)
+    full_msg = "\n".join(results)
     
     tg_url = f"https://api.telegram.org/bot{token}/sendMessage"
     requests.post(tg_url, json={"chat_id": chat_id, "text": full_msg, "parse_mode": "Markdown"})
