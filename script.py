@@ -5,45 +5,47 @@ def check():
     token = os.getenv('TG_TOKEN')
     chat_id = os.getenv('TG_CHAT_ID')
     
-    # ТЕСТ: Франц Кафка (Q460) — должен выдать ТРЕВОГУ
-    # РАБОЧИЙ: Петер Ярош (Q12044733) — должен быть "ЖИВ"
+    # ТЕСТ: Франц Кафка (Q460) — ДОЛЖЕН ВЫДАТЬ ТРЕВОГУ
+    # РАБОЧИЙ: Петер Ярош (Q12044733) — ДОЛЖЕН БЫТЬ "ЖИВ"
     target_id = "Q460" 
 
-    # 1. Сначала узнаем актуальный ID (на случай редиректов)
-    search_url = f"https://www.wikidata.org/w/api.php"
-    search_params = {
-        "action": "wbgetentities",
-        "ids": target_id,
-        "format": "json",
-        "redirects": "yes"
+    # Используем API для прямого получения утверждений
+    api_url = "https://www.wikidata.org/w/api.php"
+    params = {
+        "action": "wbgetclaims",
+        "entity": target_id,
+        "format": "json"
     }
     
-    headers = {'User-Agent': 'JarosStatusBot/1.1 (https://github.com/yourusername)'}
+    headers = {'User-Agent': 'JarosStatusBot/1.2 (contact: your_email@example.com)'}
 
     try:
-        # Получаем реальный ID (если Q460 перенаправляет куда-то еще)
-        res = requests.get(search_url, params=search_params, headers=headers).json()
-        real_id = list(res.get('entities', {}).keys())[0]
+        response = requests.get(api_url, params=params, headers=headers)
+        data = response.json()
         
-        # 2. Запрашиваем конкретно свойство P570 (дата смерти)
-        claims_url = "https://www.wikidata.org/w/api.php"
-        claims_params = {
-            "action": "wbgetclaims",
-            "entity": real_id,
-            "property": "P570",
-            "format": "json"
-        }
+        # Проверяем, получили ли мы вообще список фактов (claims)
+        claims = data.get('claims', {})
         
-        claims_res = requests.get(claims_url, params=claims_params, headers=headers).json()
+        if not claims:
+            # Если пусто, возможно это редирект. Попробуем получить через wbgetentities
+            print(f"DEBUG: Раздел claims пуст для {target_id}. Пробую резервный метод...")
+            alt_res = requests.get(
+                "https://www.wikidata.org/w/api.php", 
+                params={"action": "wbgetentities", "ids": target_id, "format": "json", "props": "claims"},
+                headers=headers
+            ).json()
+            entity_data = alt_res.get('entities', {}).get(target_id, {})
+            claims = entity_data.get('claims', {})
+
+        # P570 — это дата смерти
+        has_death_date = "P570" in claims
         
-        # Если в ответе есть ключ 'claims' и он не пустой — дата смерти существует
-        death_claims = claims_res.get('claims', {})
-        
-        if death_claims and 'P570' in death_claims:
-            print(f"DEBUG: Метка смерти P570 НАЙДЕНА для {real_id}")
+        if has_death_date:
+            print(f"DEBUG: Метка смерти P570 НАЙДЕНА для {target_id}")
             msg = f"❗ Внимание! У объекта {target_id} обнаружена дата смерти в Wikidata."
         else:
-            print(f"DEBUG: Метка смерти P570 НЕ найдена для {real_id}")
+            # Если и тут пусто, выводим что именно мы получили для дебага
+            print(f"DEBUG: Список ключей в claims: {list(claims.keys())}")
             msg = f"🇸🇰 Статус объекта {target_id}: Жив. Все в порядке."
 
         # Отправка в Telegram
@@ -51,7 +53,7 @@ def check():
         requests.post(tg_url, json={"chat_id": chat_id, "text": msg})
         
     except Exception as e:
-        print(f"Критическая ошибка: {e}")
+        print(f"Ошибка в скрипте: {e}")
 
 if __name__ == "__main__":
     check()
