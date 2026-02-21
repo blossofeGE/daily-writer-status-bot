@@ -5,22 +5,22 @@ def check():
     token = os.getenv('TG_TOKEN')
     chat_id = os.getenv('TG_CHAT_ID')
     
-    # ТЕСТ: Q460 (Должен быть Франц Кафка -> Тревога)
-    # РАБОЧИЙ: Q12044733 (Петер Ярош -> Жив)
+    # ТЕСТ: Франц Кафка (Q460)
+    # РАБОЧИЙ: Петер Ярош (Q12044733)
     target_id = "Q460" 
 
-    # Используем SPARQL - самый точный метод запроса в Wikidata
+    # SPARQL-запрос: достаем имя и дату смерти напрямую из мозга Wikidata
     query = f"""
-    SELECT ?item ?itemLabel ?deathDate WHERE {{
+    SELECT ?itemLabel ?death WHERE {{
       BIND(wd:{target_id} AS ?item)
-      OPTIONAL {{ ?item wdt:P570 ?deathDate. }}
+      OPTIONAL {{ ?item wdt:P570 ?death. }}
       SERVICE wikibase:label {{ bd:serviceParam wikibase:language "ru,en". }}
     }}
     """
     
     url = "https://query.wikidata.org/sparql"
     headers = {
-        'User-Agent': 'JarosStatusBot/2.0',
+        'User-Agent': 'JarosChecker/2.0',
         'Accept': 'application/sparql-results+json'
     }
 
@@ -30,25 +30,25 @@ def check():
         results = data.get('results', {}).get('bindings', [])
 
         if results:
-            item_info = results[0]
-            name = item_info.get('itemLabel', {}).get('value', target_id)
-            death_date = item_info.get('deathDate', {}).get('value')
+            res = results[0]
+            name = res.get('itemLabel', {}).get('value', 'Неизвестно')
+            death_date = res.get('death', {}).get('value')
 
             if death_date:
-                print(f"✅ DEBUG: Объект {name} ({target_id}). Дата смерти найдена: {death_date}")
-                msg = f"❗ Внимание! У объекта {name} ({target_id}) обнаружена дата смерти: {death_date}"
+                print(f"DEBUG: Нашел объект {name}. Дата смерти: {death_date}")
+                msg = f"❗ ТРЕВОГА! Объект {name} ({target_id}) — найдена дата смерти: {death_date}"
             else:
-                print(f"ℹ️ DEBUG: Объект {name} ({target_id}). Дата смерти НЕ найдена.")
+                print(f"DEBUG: Нашел объект {name}. Дата смерти отсутствует.")
                 msg = f"🇸🇰 Статус объекта {name}: Жив. Все в порядке."
         else:
-            msg = f"⚠️ Ошибка: Объект {target_id} не найден в базе."
+            msg = f"⚠️ Ошибка: Wikidata не нашла объект {target_id} через SPARQL."
 
-        # Отправка в Telegram
-        tg_url = f"https://api.telegram.org/bot{token}/sendMessage"
-        requests.post(tg_url, json={"chat_id": chat_id, "text": msg})
+        # Отправка в TG
+        requests.post(f"https://api.telegram.org/bot{token}/sendMessage", 
+                      json={"chat_id": chat_id, "text": msg})
         
     except Exception as e:
-        print(f"❌ Ошибка запроса: {e}")
+        print(f"Ошибка: {e}")
 
 if __name__ == "__main__":
     check()
