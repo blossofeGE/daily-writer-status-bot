@@ -6,7 +6,7 @@ def check():
     chat_id = os.getenv('TG_CHAT_ID')
     
     # Wikidata ID Петера Яроша
-    wiki_url = "https://www.wikidata.org/wiki/Special:EntityData/Q12044733.json"
+    wiki_url = "https://www.wikidata.org/wiki/Special:EntityData/Q460.json"
     # Добавляем заголовок, чтобы Wikidata нас не банила
     headers = {'User-Agent': 'JarosStatusBot/1.0 (contact: your_email@example.com)'}
 
