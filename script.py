@@ -9,7 +9,7 @@ def check():
     # РАБОЧИЙ: Петер Ярош (Q12044733) — должен быть "ЖИВ"
     target_id = "Q460" 
 
-    # Используем официальный API для получения полных данных (claims)
+    # Используем прямой API эндпоинт для получения полных данных
     api_url = "https://www.wikidata.org/w/api.php"
     params = {
         "action": "wbgetentities",
@@ -24,11 +24,11 @@ def check():
         response = requests.get(api_url, params=params, headers=headers)
         data = response.json()
         
-        # Получаем список утверждений (claims)
+        # Пробираемся к данным конкретного ID
         entity = data.get('entities', {}).get(target_id, {})
         claims = entity.get('claims', {})
         
-        # Проверяем наличие свойства P570 (дата смерти)
+        # P570 — это "date of death" в базе Wikidata
         if "P570" in claims:
             print(f"DEBUG: Метка смерти P570 НАЙДЕНА для {target_id}")
             msg = f"❗ Внимание! У объекта {target_id} обнаружена дата смерти в Wikidata."
