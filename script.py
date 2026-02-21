@@ -7,7 +7,7 @@ def check():
     
     # ТЕСТ: Владимир Высоцкий (Q512)
     # РАБОЧИЙ: Петер Ярош (Q12044733)
-    target_id = "Q512" 
+    target_id = "Q43203" 
 
     url = f"https://www.wikidata.org/wiki/Special:EntityData/{target_id}.json"
     headers = {'User-Agent': 'Mozilla/5.0'}
