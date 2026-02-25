@@ -3,7 +3,7 @@ name: Check Status Daily
 on:
   schedule:
     # Время в формате UTC. 12:00 по Москве — это 09:00 UTC.
-    - cron: '0 9 * * *'
+    - cron: '0 6 * * *'
   workflow_dispatch: # Позволяет запустить вручную кнопкой
 
 jobs:
