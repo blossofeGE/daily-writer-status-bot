@@ -13,9 +13,10 @@ Telegram-бот на Python, который ежедневно получает 
 ## Стек
 
 - Python
+- Requests
 - Telegram Bot API
-- REST API
-- JSON
+- Wikidata API
+- GitHub Actions
 
 ## Структура проекта
 
