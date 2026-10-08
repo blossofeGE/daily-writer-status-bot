@@ -33,3 +33,5 @@ Telegram-бот на Python, который ежедневно получает 
 pip install -r requirements.txt
 python script.py
 ```
+
+minor update
